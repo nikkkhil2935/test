@@ -1,10 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
-    // !!! IMPORTANT: Replace YOUR_BACKEND_IP with the actual IP address or hostname
-// Example: Replace 'my-coldchain-backend' with the name you chose
-const BACKEND_URL_STATUS = 'https://my-coldchain-backend.onrender.com/api/status';
-const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts';
-    // No need to fetch history separately if using live chart updates
+    // !!! IMPORTANT: Replace YOUR_BACKEND_IP with your actual Render backend URL
+    const BACKEND_URL_STATUS = 'https://my-coldchain-backend.onrender.com/api/status'; // Example Render URL
+    const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts'; // Example Render URL
+    // --- Other configurations ---
     const UPDATE_INTERVAL_MS = 10000; // Update status/KPIs every 10 seconds
     const ALERT_UPDATE_INTERVAL_MS = 60000; // Update alert log every 60 seconds
     const INITIAL_RSL_DAYS = 20;      // Product's starting shelf life in days
@@ -20,7 +19,7 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
     const rslValue = document.getElementById('rslValue');
     const rslBar = document.getElementById('rslBar');
     const initialRslDisplay = document.getElementById('initialRsl');
-    const kpiJourneyTime = document.getElementById('kpiJourneyTime');
+    const kpiJourneyTime = document.getElementById('kpiJourneyTime'); // Correct variable name
     const kpiAvgTemp = document.getElementById('kpiAvgTemp');
     const kpiMinTemp = document.getElementById('kpiMinTemp');
     const kpiMaxTemp = document.getElementById('kpiMaxTemp');
@@ -142,11 +141,11 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
 
     function updateMapMarker(lat, lng) {
          if (!map) return;
-         latValueText.textContent = (lat !== null && lat !== undefined) ? lat.toFixed(4) : '--';
-         lngValueText.textContent = (lng !== null && lng !== undefined) ? lng.toFixed(4) : '--';
-         if (lat === null || lng === null) {
-            // If coords are null, maybe fade the marker slightly?
-             if(marker) marker.setOpacity(0.6);
+         latValueText.textContent = (lat !== null && lat !== undefined && !isNaN(lat)) ? lat.toFixed(4) : '--';
+         lngValueText.textContent = (lng !== null && lng !== undefined && !isNaN(lng)) ? lng.toFixed(4) : '--';
+         if (lat === null || lng === null || isNaN(lat) || isNaN(lng)) {
+             if(marker) marker.setOpacity(0.5);
+             // console.log("Skipping map marker update due to invalid/null coordinates."); // Reduce noise
              return;
          }
          const newLatLng = L.latLng(lat, lng);
@@ -158,38 +157,40 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
              marker.setLatLng(newLatLng);
              marker.setPopupContent(`<b>Container CON-101</b><br>Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
              if (!map.getBounds().contains(newLatLng)) map.panTo(newLatLng);
-             marker.setOpacity(1.0); // Ensure marker is fully visible
+             marker.setOpacity(1.0);
          }
     }
 
     function updateAlertLogTable(alerts) {
         if (!alertLogBody) return;
-        alertLogBody.innerHTML = ''; // Clear existing rows
-
+        alertLogBody.innerHTML = '';
         if (!alerts || alerts.length === 0) {
             alertLogBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #7f8c8d;">No alerts recorded yet.</td></tr>';
             return;
         }
-
         alerts.forEach(alert => {
             const row = alertLogBody.insertRow();
             const startTime = alert.start_time ? new Date(alert.start_time).toLocaleString() : 'N/A';
             const endTime = alert.end_time ? new Date(alert.end_time).toLocaleString() : 'Ongoing';
-            const peakNadir = alert.peak_value !== null ? `${alert.peak_value.toFixed(1)} &deg;C` : '--';
+            const peakNadir = (alert.peak_value !== null && !isNaN(alert.peak_value)) ? `${parseFloat(alert.peak_value).toFixed(1)} &deg;C` : '--';
             const type = alert.type || 'N/A';
-
-            // Apply different style for ongoing alerts
-            if (!alert.end_time) {
-                row.style.backgroundColor = "#fffbe6"; // Light yellow background
-                row.style.fontWeight = "bold";
-            }
-
+            if (!alert.end_time) { row.style.backgroundColor = "#fffbe6"; row.style.fontWeight = "bold"; }
             row.insertCell().textContent = startTime;
             row.insertCell().textContent = endTime;
             row.insertCell().textContent = type;
-            row.insertCell().innerHTML = peakNadir; // Use innerHTML for degree symbol
+            row.insertCell().innerHTML = peakNadir;
         });
     }
+
+    // --- Helper function to safely format numbers ---
+    // *** Ensures it handles null AND undefined ***
+    function safeToFixed(value, digits = 1) {
+        if (value === null || typeof value === 'undefined' || isNaN(parseFloat(value))) {
+            return '--'; // Return placeholder if invalid
+        }
+        return parseFloat(value).toFixed(digits);
+    }
+
 
     // --- Main Data Fetching and UI Update Logic ---
     async function fetchAndUpdateStatus() {
@@ -197,12 +198,12 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
         const currentTimeLabel = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit'});
         const fullTimestamp = now.toLocaleString();
 
-        let data = {}; // Define data with broader scope
+        let data = {};
 
         try {
             const response = await fetch(BACKEND_URL_STATUS);
             if (!response.ok) throw new Error(`Status fetch error! ${response.status}`);
-            data = await response.json(); // Assign fetched data
+            data = await response.json(); // Assign fetched data HERE
 
             // --- Update Status ---
             let statusText = (data.status || 'UNKNOWN').toUpperCase();
@@ -210,26 +211,26 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
             statusIndicator.className = 'status-indicator';
             if (statusText === 'NORMAL') statusIndicator.classList.add('status-normal');
             else if (statusText === 'ALERT') statusIndicator.classList.add('status-alert');
-            else statusIndicator.classList.add('status-unknown'); // Default/Unknown/Connecting
+            else statusIndicator.classList.add('status-unknown');
 
             // --- Update Basic Data & Timestamp ---
-            tempValue.textContent = data.temperature !== null ? data.temperature.toFixed(1) : '--';
-            humValue.textContent = data.humidity !== null ? data.humidity.toFixed(1) : '--';
+            tempValue.textContent = safeToFixed(data.temperature, 1);
+            humValue.textContent = safeToFixed(data.humidity, 1);
             lastUpdateFull.textContent = `Last update: ${fullTimestamp}`;
 
             // --- Update RSL ---
             updateRslDisplay(data.predicted_rsl_days, INITIAL_RSL_DAYS);
 
             // --- Update KPIs ---
-            kpiJourneyTime.textContent = data.journey_time_hours !== null ? data.journey_time_hours.toFixed(1) : '--'; // <-- CORRECT VARIABLE NAME
-            kpiAvgTemp.textContent = data.avg_temp !== null ? data.avg_temp.toFixed(1) : '--';
-            kpiMinTemp.textContent = data.min_temp !== null ? data.min_temp.toFixed(1) : '--';
-            kpiMaxTemp.textContent = data.max_temp !== null ? data.max_temp.toFixed(1) : '--';
-            kpiTimeIn.textContent = data.time_in_range_hrs !== null ? data.time_in_range_hrs.toFixed(1) : '--';
-            kpiTimeOut.textContent = data.time_out_range_hrs !== null ? data.time_out_range_hrs.toFixed(1) : '--';
+            // Use safeToFixed for ALL potential numbers from the backend
+            kpiJourneyTime.textContent = safeToFixed(data.journey_time_hours, 1);
+            kpiAvgTemp.textContent = safeToFixed(data.avg_temp, 1); // Check safeToFixed again
+            kpiMinTemp.textContent = safeToFixed(data.min_temp, 1);
+            kpiMaxTemp.textContent = safeToFixed(data.max_temp, 1);
+            kpiTimeIn.textContent = safeToFixed(data.time_in_range_hrs, 1);
+            kpiTimeOut.textContent = safeToFixed(data.time_out_range_hrs, 1);
 
             // --- Update Live Charts ---
-            // Only update charts if valid data received, otherwise they keep last point
             updateLiveCharts(currentTimeLabel, data.temperature, data.predicted_rsl_days);
 
             // --- Update Map ---
@@ -237,18 +238,19 @@ const BACKEND_URL_ALERTS = 'https://my-coldchain-backend.onrender.com/api/alerts
 
 
         } catch (error) {
-            console.error("Failed to fetch/update status:", error);
+            console.error("Failed to fetch/update status:", error); // Log the actual error
             statusIndicator.textContent = 'ERROR';
             statusIndicator.className = 'status-indicator status-error';
             lastUpdateFull.textContent = `Status update failed at ${fullTimestamp}`;
-             // Clear only values that depend directly on the fetch
+             // Clear potentially stale data
             tempValue.textContent = '--'; humValue.textContent = '--'; rslValue.textContent = '--';
             latValueText.textContent = '--'; lngValueText.textContent = '--';
-            // KPIs might become stale, indicate this or clear them
-            journeyTime.textContent = '--'; kpiAvgTemp.textContent = '--'; kpiMinTemp.textContent = '--';
-             // Keep max temp as it's a running max
-            // maxTemp.textContent = '--';
-            kpiTimeIn.textContent = '--'; kpiTimeOut.textContent = '--';
+            // Clear KPIs
+            // *** CORRECTED VARIABLE NAME IN CATCH BLOCK ***
+            kpiJourneyTime.textContent = '--'; // Use the correct const name defined above
+            // *** END CORRECTION ***
+            kpiAvgTemp.textContent = '--'; kpiMinTemp.textContent = '--';
+            kpiMaxTemp.textContent = '--'; kpiTimeIn.textContent = '--'; kpiTimeOut.textContent = '--';
             updateRslDisplay(null, INITIAL_RSL_DAYS);
              if(marker) marker.setOpacity(0.5); // Fade map marker
         }
