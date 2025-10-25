@@ -1,0 +1,252 @@
+/* General Styling */
+:root {
+    --primary-color: #3498db; /* Blue */
+    --secondary-color: #2c3e50; /* Dark Blue/Grey */
+    --accent-color: #e74c3c; /* Red for alerts */
+    --success-color: #2ecc71; /* Green */
+    --warning-color: #f39c12; /* Orange */
+    --bg-color: #ecf0f1; /* Light grey background */
+    --card-bg-color: #ffffff;
+    --text-color: #333;
+    --text-muted-color: #7f8c8d; /* Grey */
+    --border-color: #dce4e8;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+    --border-radius: 8px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--card-bg-color);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 4px var(--shadow-color);
+    position: sticky; /* Keep header visible */
+    top: 0;
+    z-index: 10; /* Ensure header is above cards */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--secondary-color);
+    display: inline-block; /* Allow emoji next to it */
+    margin-right: 0.5rem;
+}
+header p {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted-color);
+    font-size: 0.9rem;
+}
+header p span {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem; /* Space between cards */
+    padding: 1.5rem;
+    max-width: 1600px;
+    margin: 1rem auto; /* Center the grid */
+}
+
+/* Card Styling */
+.card {
+    background-color: var(--card-bg-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 3px 6px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    transition: box-shadow 0.3s ease;
+}
+.card:hover {
+     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Data Item Styling */
+.data-item {
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.data-item .label {
+    color: var(--text-muted-color);
+    flex-basis: 55%; /* More space for potentially longer labels */
+    padding-right: 0.5rem;
+}
+
+.data-item .value {
+    font-weight: 600; /* Bolder values */
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    text-align: right;
+    flex-basis: 40%;
+}
+.data-item .large-value {
+    font-size: 2rem;
+    color: var(--success-color); /* Green for RSL */
+}
+.minor-detail,
+.minor-detail .label,
+.minor-detail .value {
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+    font-weight: normal;
+}
+
+/* Status Indicator Styling */
+.status-indicator {
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-top: 0.5rem; /* Less margin */
+    border: 1px solid transparent;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    flex-grow: 1; /* Fill card space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px; /* Ensure minimum height */
+}
+
+.status-normal { background-color: #eafaf1; color: #1e8449; border-color: #a9dfbf; }
+.status-alert { background-color: #fdedec; color: #c0392b; border-color: #f5b7b1; }
+.status-unknown { background-color: #f4f6f7; color: #566573; border-color: #d5dbdb; }
+.status-error { background-color: #fdf3e6; color: #b9770e; border-color: #fae4c1; } /* Yellowish for error */
+
+.last-update {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    color: var(--text-muted-color);
+    text-align: center;
+}
+
+/* RSL Progress Bar */
+.rsl-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 20px; /* Rounded ends */
+    height: 12px; /* Slimmer bar */
+    margin: 0.5rem 0 1rem 0; /* Adjusted margin */
+    overflow: hidden;
+}
+
+.rsl-bar {
+    height: 100%;
+    background-color: var(--success-color); /* Green */
+    border-radius: 20px;
+    transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+    width: 0%; /* Start empty, JS will set width */
+}
+.rsl-bar.medium { background-color: var(--warning-color); } /* Orange */
+.rsl-bar.low { background-color: var(--accent-color); } /* Red */
+
+
+/* Chart and Map */
+.chart-container {
+    position: relative;
+    height: 280px; /* Fixed height for chart containers */
+    width: 100%;
+}
+
+#map { /* Style for the Leaflet map div */
+    height: 300px; /* Specific height is crucial for Leaflet */
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+.coords-display {
+    text-align: center;
+}
+
+/* Alert Log Table */
+.alert-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.8rem; /* Smaller font for table */
+    table-layout: fixed; /* Helps with column width */
+}
+.alert-log-table th,
+.alert-log-table td {
+    border: 1px solid #dee2e6;
+    padding: 6px 8px;
+    text-align: left;
+    word-wrap: break-word; /* Wrap long text */
+}
+.alert-log-table th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    position: sticky; /* Keep header visible when scrolling */
+    top: 0;
+    z-index: 1;
+}
+.alert-log-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+.alert-log-container {
+    max-height: 250px; /* Limit height and make scrollable */
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+.alert-log-container td:last-child {
+     font-weight: bold; /* Highlight peak value */
+}
+
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack cards */
+        padding: 1rem;
+    }
+    header { padding: 1rem; }
+    header h1 { font-size: 1.5rem; }
+    .card { padding: 1rem; }
+    .card h2 { font-size: 1.1rem; }
+    .data-item { font-size: 0.9rem;}
+    .data-item .value { font-size: 1rem; }
+    .data-item .large-value { font-size: 1.6rem; }
+    .status-indicator { font-size: 1.2rem; }
+    .kpi-grid { grid-template-columns: 1fr; } /* Stack KPIs */
+}

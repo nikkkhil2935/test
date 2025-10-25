@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Cold Chain Monitor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <style>
+        #map { height: 300px; width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Intelligent Cold Chain Monitor 🧊</h1>
+        <p>Real-time insights for container ID: <span id="containerId">CON-101</span></p>
+    </header>
+
+    <main class="dashboard-grid">
+        <div class="card status-card">
+            <h2>Overall Status</h2>
+            <div class="status-indicator status-unknown" id="statusIndicator">CONNECTING...</div>
+            <div class="last-update" id="lastUpdateFull">Last update: ---</div>
+        </div>
+
+        <div class="card current-conditions-card">
+            <h2>Current Conditions</h2>
+            <div class="data-item">
+                <span class="label">🌡️ Temperature:</span><span class="value" id="tempValue">--</span> &deg;C
+            </div>
+            <div class="data-item">
+                <span class="label">💧 Humidity:</span><span class="value" id="humValue">--</span> %
+            </div>
+        </div>
+
+        <div class="card rsl-card">
+            <h2>⏳ Shelf Life Prediction</h2>
+             <div class="data-item">
+                <span class="label">Predicted RSL:</span><span class="value large-value" id="rslValue">--</span> days
+            </div>
+            <div class="rsl-bar-container" title="Estimated Remaining Shelf Life">
+                <div class="rsl-bar" id="rslBar" style="width: 100%;"></div>
+            </div>
+             <div class="data-item minor-detail">
+                <span class="label">Initial Claimed RSL:</span><span class="value" id="initialRsl">20</span> days
+            </div>
+        </div>
+
+        <div class="card kpi-card">
+            <h2>📊 Key Performance Indicators</h2>
+            <div class="kpi-grid">
+                 <div class="data-item flex-column"> <span class="label">Journey Time:</span> <span class="value" id="kpiJourneyTime">--</span> hrs </div>
+                 <div class="data-item flex-column"> <span class="label">Avg Temp:</span> <span class="value" id="kpiAvgTemp">--</span> &deg;C </div>
+                 <div class="data-item flex-column"> <span class="label">Min Temp:</span> <span class="value" id="kpiMinTemp">--</span> &deg;C </div>
+                 <div class="data-item flex-column"> <span class="label">Max Temp:</span> <span class="value" id="kpiMaxTemp">--</span> &deg;C </div>
+                 <div class="data-item flex-column"> <span class="label">Time In Range:</span> <span class="value" id="kpiTimeIn">--</span> hrs </div>
+                 <div class="data-item flex-column"> <span class="label">Time Out Range:</span> <span class="value" id="kpiTimeOut">--</span> hrs </div>
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <h2>Temperature History (Recent Readings)</h2>
+            <div class="chart-container"><canvas id="tempChart"></canvas></div>
+        </div>
+
+         <div class="card chart-card">
+            <h2>Predicted RSL Trend (Recent Readings)</h2>
+            <div class="chart-container"><canvas id="rslChart"></canvas></div>
+        </div>
+
+
+        <div class="card map-card">
+             <h2>📍 Current Location</h2>
+             <div id="map"></div> <div class="data-item minor-detail coords-display">
+                 <span class="label">Coordinates:</span>
+                 <span class="value">(<span id="latValueText">--</span>, <span id="lngValueText">--</span>)</span>
+             </div>
+        </div>
+
+        <div class="card alert-log-card">
+             <h2>🚨 Alert Log</h2>
+             <div class="alert-log-container">
+                 <table class="alert-log-table">
+                     <thead>
+                         <tr><th>Start Time</th><th>End Time</th><th>Type</th><th>Peak/Nadir</th></tr>
+                     </thead>
+                     <tbody id="alertLogBody">
+                         <tr><td colspan="4">Loading alerts...</td></tr>
+                     </tbody>
+                 </table>
+             </div>
+        </div>
+
+
+    </main>
+
+    <footer> <p>&copy; 2025 Cold Chain Monitoring Project</p> </footer>
+    <script src="script.js"></script>
+</body>
+</html>
