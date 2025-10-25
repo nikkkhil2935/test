@@ -50,53 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeCharts() {
         if (tempChartCanvas) {
             const ctxTemp = tempChartCanvas.getContext('2d');
-            tempChart = new Chart(ctxTemp, {
-                type: 'line',
-                data: {
-                    labels: liveChartLabels,
-                    datasets: [{
-                        label: 'Temperature (°C)', data: liveTempData,
-                        borderColor: 'rgb(54, 162, 235)', backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                        tension: 0.1, fill: true, pointRadius: 2, pointHoverRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { maxTicksLimit: 10, font: { size: 9 } } },
-                        y: { beginAtZero: false, title: { display: true, text: 'Temp (°C)', font: { size: 10 } }, ticks: { font: { size: 9 } } }
-                    },
-                    plugins: { legend: { display: false } }, animation: false
-                }
-            });
+            tempChart = new Chart(ctxTemp, { type: 'line', data: { labels: liveChartLabels, datasets: [{ label: 'Temperature (°C)', data: liveTempData, borderColor: 'rgb(54, 162, 235)', backgroundColor: 'rgba(54, 162, 235, 0.1)', tension: 0.1, fill: true, pointRadius: 2, pointHoverRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { maxTicksLimit: 10, font: { size: 9 } } }, y: { beginAtZero: false, title: { display: true, text: 'Temp (°C)', font: { size: 10 } }, ticks: { font: { size: 9 } } } }, plugins: { legend: { display: false } }, animation: false } });
             console.log("Temperature Chart initialized.");
         } else { console.error("Temp Chart canvas not found!"); }
 
         if (rslChartCanvas) {
             const ctxRsl = rslChartCanvas.getContext('2d');
-            rslChart = new Chart(ctxRsl, {
-                type: 'line',
-                data: {
-                    labels: liveChartLabels, // Use the same time labels
-                    datasets: [{
-                        label: 'Predicted RSL (Days)', data: liveRslData,
-                        borderColor: 'rgb(46, 204, 113)', backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                        tension: 0.1, fill: true, pointRadius: 2, pointHoverRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { maxTicksLimit: 10, font: { size: 9 } } },
-                        y: { beginAtZero: false, title: { display: true, text: 'RSL (Days)', font: { size: 10 } }, ticks: { font: { size: 9 } } }
-                    },
-                    plugins: { legend: { display: false } }, animation: false
-                }
-            });
+            rslChart = new Chart(ctxRsl, { type: 'line', data: { labels: liveChartLabels, datasets: [{ label: 'Predicted RSL (Days)', data: liveRslData, borderColor: 'rgb(46, 204, 113)', backgroundColor: 'rgba(46, 204, 113, 0.1)', tension: 0.1, fill: true, pointRadius: 2, pointHoverRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { maxTicksLimit: 10, font: { size: 9 } } }, y: { beginAtZero: false, title: { display: true, text: 'RSL (Days)', font: { size: 10 } }, ticks: { font: { size: 9 } } } }, plugins: { legend: { display: false } }, animation: false } });
              console.log("RSL Chart initialized.");
         } else { console.error("RSL Chart canvas not found!"); }
     }
-
     function initializeMap() {
          if (!mapContainer) { console.error("Map container 'map' not found."); return; }
          if (typeof L === 'undefined') { console.error("Leaflet library (L) not found."); mapContainer.innerHTML = "Map library failed to load."; return; }
@@ -109,24 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ---
 
     // --- Update Functions ---
-    function updateLiveCharts(newTimeLabel, newTempValue, newRslValue) {
+    function updateLiveCharts(newTimeLabel, newTempValue, newRslValue) { /* ... (remains the same) ... */
         if (!tempChart || !rslChart) return;
-
         liveChartLabels.push(newTimeLabel);
-        liveTempData.push(newTempValue); // Chart.js handles nulls gracefully
-        liveRslData.push(newRslValue);   // Chart.js handles nulls gracefully
-
+        liveTempData.push(newTempValue);
+        liveRslData.push(newRslValue);
         while (liveChartLabels.length > MAX_CHART_POINTS) {
             liveChartLabels.shift();
             liveTempData.shift();
             liveRslData.shift();
         }
-
-        tempChart.update('none'); // Update without animation
-        rslChart.update('none');  // Update without animation
+        tempChart.update('none');
+        rslChart.update('none');
     }
-
-    function updateRslDisplay(currentRsl, initialRsl) {
+    function updateRslDisplay(currentRsl, initialRsl) { /* ... (remains the same) ... */
          rslValue.textContent = (currentRsl !== null && currentRsl !== undefined) ? currentRsl.toFixed(2) : '--';
          initialRslDisplay.textContent = initialRsl;
          let percentage = 100;
@@ -138,8 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
          if (percentage < 30) rslBar.classList.add('low');
          else if (percentage < 60) rslBar.classList.add('medium');
     }
-
-    function updateMapMarker(lat, lng) {
+    function updateMapMarker(lat, lng) { /* ... (remains the same) ... */
          if (!map) return;
          latValueText.textContent = (lat !== null && lat !== undefined && !isNaN(lat)) ? lat.toFixed(4) : '--';
          lngValueText.textContent = (lng !== null && lng !== undefined && !isNaN(lng)) ? lng.toFixed(4) : '--';
@@ -160,8 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
              marker.setOpacity(1.0);
          }
     }
-
-    function updateAlertLogTable(alerts) {
+    function updateAlertLogTable(alerts) { /* ... (remains the same) ... */
         if (!alertLogBody) return;
         alertLogBody.innerHTML = '';
         if (!alerts || alerts.length === 0) {
@@ -183,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Helper function to safely format numbers ---
-    // *** Ensures it handles null AND undefined ***
+    // *** Added more explicit check for undefined ***
     function safeToFixed(value, digits = 1) {
         if (value === null || typeof value === 'undefined' || isNaN(parseFloat(value))) {
             return '--'; // Return placeholder if invalid
@@ -205,6 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`Status fetch error! ${response.status}`);
             data = await response.json(); // Assign fetched data HERE
 
+            // *** ADD DEBUGGING LOG HERE ***
+            console.log("Data received from backend:", data); // Log the received data structure
+
             // --- Update Status ---
             let statusText = (data.status || 'UNKNOWN').toUpperCase();
             statusIndicator.textContent = statusText;
@@ -223,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- Update KPIs ---
             // Use safeToFixed for ALL potential numbers from the backend
+            // ** Ensure kpiJourneyTime is defined correctly at the top **
             kpiJourneyTime.textContent = safeToFixed(data.journey_time_hours, 1);
             kpiAvgTemp.textContent = safeToFixed(data.avg_temp, 1); // Check safeToFixed again
             kpiMinTemp.textContent = safeToFixed(data.min_temp, 1);
